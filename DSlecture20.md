@@ -206,6 +206,18 @@ sim_df_nonconst %>%
     ## 1 (Intercept)    1.93 0.0762
     ## 2 x              3.11 0.104
 
+``` r
+boot_stramp %>% 
+  unnest(stramp_sample) %>% 
+  ggplot(aes(x = x, y = y)) + 
+  geom_line(aes(group = stramp_number), stat = "smooth", method = "lm", se = FALSE, alpha = .1, color = "blue") +
+  geom_point(data = sim_df_nonconst, alpha = .5)
+```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+<img src="DSlecture20_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
+
 ## revisit nyc airbnb
 
 ``` r
@@ -228,7 +240,7 @@ nyc_airbnb %>%
   geom_point()
 ```
 
-<img src="DSlecture20_files/figure-gfm/unnamed-chunk-15-1.png" width="90%" />
+<img src="DSlecture20_files/figure-gfm/unnamed-chunk-16-1.png" width="90%" />
 
 ``` r
 air_boot =
@@ -282,4 +294,4 @@ air_boot %>%
   geom_density()
 ```
 
-<img src="DSlecture20_files/figure-gfm/unnamed-chunk-19-1.png" width="90%" />
+<img src="DSlecture20_files/figure-gfm/unnamed-chunk-20-1.png" width="90%" />

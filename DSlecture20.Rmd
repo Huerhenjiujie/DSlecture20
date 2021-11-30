@@ -163,6 +163,15 @@ sim_df_nonconst %>%
     sd_es = sd(estimate)
   )
 ```
+
+```{r}
+boot_stramp %>% 
+  unnest(stramp_sample) %>% 
+  ggplot(aes(x = x, y = y)) + 
+  geom_line(aes(group = stramp_number), stat = "smooth", method = "lm", se = FALSE, alpha = .1, color = "blue") +
+  geom_point(data = sim_df_nonconst, alpha = .5)
+```
+
 ## revisit nyc airbnb
 
 ```{r}
