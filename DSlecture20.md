@@ -205,3 +205,81 @@ sim_df_nonconst %>%
     ##   <chr>         <dbl>  <dbl>
     ## 1 (Intercept)    1.93 0.0762
     ## 2 x              3.11 0.104
+
+## revisit nyc airbnb
+
+``` r
+data("nyc_airbnb")
+
+nyc_airbnb = 
+  nyc_airbnb %>% 
+  mutate(stars = review_scores_location / 2) %>% 
+  rename(
+    borough = neighbourhood_group,
+    neighborhood = neighbourhood) %>% 
+  filter(borough != "Staten Island") %>% 
+  drop_na(price, stars) %>% 
+  select(price, stars, borough, neighborhood, room_type)
+```
+
+``` r
+nyc_airbnb %>% 
+  ggplot(aes( x = stars, y = price)) +
+  geom_point()
+```
+
+<img src="DSlecture20_files/figure-gfm/unnamed-chunk-15-1.png" width="90%" />
+
+``` r
+air_boot =
+  nyc_airbnb %>% 
+  filter(borough == "Manhattan") %>% 
+  drop_na(stars) %>% 
+  bootstrap(1000, id = "stramp_number")%>% 
+  mutate(
+    models = map(.x = strap, ~lm(price ~ stars, data = .x)),
+    results = map(models, broom::tidy)
+  ) %>% 
+  select(stramp_number, results) %>% 
+  unnest(results)
+```
+
+``` r
+air_boot %>% 
+  group_by(term) %>% 
+  summarize(
+    mean_es = mean(estimate),
+    sd_es = sd(estimate)
+  )
+```
+
+    ## # A tibble: 2 × 3
+    ##   term        mean_es sd_es
+    ##   <chr>         <dbl> <dbl>
+    ## 1 (Intercept)   -35.0 31.3 
+    ## 2 stars          43.4  6.34
+
+compare to lm
+
+``` r
+nyc_airbnb %>% 
+  filter(borough == "Manhattan") %>% 
+  drop_na(stars) %>%
+  lm(price ~ stars, data = .) %>% 
+  broom::tidy()
+```
+
+    ## # A tibble: 2 × 5
+    ##   term        estimate std.error statistic  p.value
+    ##   <chr>          <dbl>     <dbl>     <dbl>    <dbl>
+    ## 1 (Intercept)    -34.3     22.9      -1.50 1.35e- 1
+    ## 2 stars           43.3      4.78      9.07 1.39e-19
+
+``` r
+air_boot %>% 
+  filter(term == "stars") %>% 
+  ggplot(aes(x = estimate)) +
+  geom_density()
+```
+
+<img src="DSlecture20_files/figure-gfm/unnamed-chunk-19-1.png" width="90%" />
